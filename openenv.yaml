@@ -1,0 +1,29 @@
+name: teen-safety-compliance-env
+version: "1.0.0"
+description: >
+  An RL environment simulating Meta's Teen Safety Compliance system.
+  An AI agent reviews content, accounts, and features to protect teenage
+  users on social media platforms from harmful content and policy violations.
+author: Team MindMesH
+tags:
+  - openenv
+  - content-moderation
+  - teen-safety
+  - social-media
+  - compliance
+tasks:
+  - id: task1_easy
+    name: Obvious Content Restriction
+    difficulty: easy
+    description: Detect and restrict obviously inappropriate content for teen users
+  - id: task2_medium
+    name: Subtle Harm Assessment
+    difficulty: medium
+    description: Assess subtle psychological harm in content targeting teenagers
+  - id: task3_hard
+    name: Age Misrepresentation Detection
+    difficulty: hard
+    description: Detect age fraud from behavioral signals alone
+observation_space: TeenSafetyObservation
+action_space: TeenSafetyAction
+reward_range: [0.0, 1.0]

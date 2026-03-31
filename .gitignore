@@ -1,0 +1,45 @@
+# ── Environment & Secrets ───────────────────────────────────────────────────
+.env
+.env.local
+.env.production
+*.env
+
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual Environments ─────────────────────────────────────────────────────
+venv/
+.venv/
+env/bin/
+env/lib/
+env/include/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Pytest / Testing ─────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+*.xml
+
+# ── IDE / Editor ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Inference Output ─────────────────────────────────────────────────────────
+baseline_results.json
+
+# ── Misc ─────────────────────────────────────────────────────────────────────
+*.log
+prd_audit.md
