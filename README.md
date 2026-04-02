@@ -7,6 +7,8 @@ sdk: docker
 pinned: false
 ---
 
+<!-- Hugging Face Spaces metadata above is required for Space configuration. -->
+
 # Teen Safety Compliance Environment
 
 OpenEnv-compliant reinforcement learning environment that simulates teen safety compliance decisions for social media platforms.
@@ -20,7 +22,7 @@ Built for Scaler OpenEnv Hackathon 2026 by Team MindMesH.
 
 ---
 
-## 1) Project Overview
+## 🚀 Project Overview
 
 This environment evaluates an agent’s ability to:
 - Restrict clearly unsafe content for minors
@@ -34,13 +36,13 @@ The agent interacts with a standard OpenEnv loop:
 
 ---
 
-## 2) Why this project matters
+## 🌍 Why this project matters
 
 Teen online safety is a high-impact, real-world compliance domain. This environment models policy-style moderation tradeoffs with deterministic grading and reproducible evaluation runs.
 
 ---
 
-## 3) Tasks and difficulty
+## 🧩 Tasks and difficulty
 
 ### Task 1: `task1_easy` (Easy)
 Obvious policy violations for under-18 users.
@@ -62,7 +64,7 @@ Expected good-agent range: `0.20 – 0.60`.
 
 ---
 
-## 4) Observation, action, reward
+## 🧠 Observation, action, reward
 
 ### Observation (`TeenSafetyObservation`)
 - `case_id`: unique case id
@@ -88,7 +90,7 @@ Expected good-agent range: `0.20 – 0.60`.
 
 ---
 
-## 5) Tech stack
+## 🛠️ Tech stack
 
 - Python 3.11
 - openenv-core
@@ -100,7 +102,7 @@ Expected good-agent range: `0.20 – 0.60`.
 
 ---
 
-## 6) Project structure
+## 🗂️ Project structure
 
 - `env/` — environment core, models, reward, state manager
 - `tasks/` — scenario sets + deterministic graders
@@ -112,7 +114,7 @@ Expected good-agent range: `0.20 – 0.60`.
 
 ---
 
-## 7) Setup
+## ⚙️ Setup
 
 1. Create/activate virtual environment
 2. Install dependencies:
@@ -147,7 +149,7 @@ Notes:
 
 ---
 
-## 8) Run locally
+## 💻 Run locally
 
 ### Start server
 
@@ -167,7 +169,7 @@ Server runs at `http://0.0.0.0:7860`.
 
 ---
 
-## 9) Run baseline inference
+## 📈 Run baseline inference
 
 ```bash
 python inference.py
@@ -177,7 +179,7 @@ This runs all 3 tasks (3 episodes each), prints scores, and writes `baseline_res
 
 ---
 
-## 10) Baseline results (latest run)
+## 🏁 Baseline results (latest run)
 
 Latest baseline run produced:
 
@@ -192,7 +194,7 @@ Runtime: ~`11.1s`.
 
 ---
 
-## 11) Tests
+## ✅ Tests
 
 Run full test suite:
 
@@ -204,7 +206,7 @@ Current status: `100 passed`.
 
 ---
 
-## 12) OpenEnv validation
+## 🔍 OpenEnv validation
 
 Validate project readiness:
 
@@ -216,7 +218,7 @@ Current status: passes (`Ready for multi-mode deployment`).
 
 ---
 
-## 13) Docker
+## 🐳 Docker
 
 Build image:
 
@@ -234,7 +236,7 @@ docker run --rm -p 7860:7860 --env-file .env teen-safety-compliance-env
 
 ---
 
-## 14) Deployment notes (Hugging Face Spaces)
+## ☁️ Deployment notes (Hugging Face Spaces)
 
 - Use Docker Space
 - Expose port `7860`
@@ -242,5 +244,3 @@ docker run --rm -p 7860:7860 --env-file .env teen-safety-compliance-env
 - Verify `/health`, `/reset`, `/step` after deploy
 
 ---
-
-
