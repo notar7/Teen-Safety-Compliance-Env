@@ -39,7 +39,10 @@ Thumbs.db
 
 # ── Inference Output ─────────────────────────────────────────────────────────
 baseline_results.json
+baseline_results_run1.json
+baseline_results_run2.json
 
 # ── Misc ─────────────────────────────────────────────────────────────────────
 *.log
 prd_audit.md
+teen_safety_PRD.md
