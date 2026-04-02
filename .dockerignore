@@ -1,0 +1,30 @@
+# VCS
+.git
+.gitignore
+
+# Python cache/artifacts
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Local env/secrets
+.env
+.env.*
+
+# Test and local outputs
+tests/
+baseline_results*.json
+prd_audit.md
+teen_safety_PRD.md
+
+# Optional local docs/artifacts not needed at runtime
+README_draft.md
+notes.md
+
+# Editor/OS
+.vscode/
+.idea/
+*.log

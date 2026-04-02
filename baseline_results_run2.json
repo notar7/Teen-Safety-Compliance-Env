@@ -1,0 +1,36 @@
+{
+  "model": "llama-3.3-70b-versatile",
+  "api_base": "https://api.groq.com/openai/v1",
+  "random_seed": 42,
+  "runtime_secs": 100.1,
+  "tasks": {
+    "task1_easy": {
+      "task_id": "task1_easy",
+      "avg_score": 1.0,
+      "episode_scores": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "task2_medium": {
+      "task_id": "task2_medium",
+      "avg_score": 0.5,
+      "episode_scores": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "task3_hard": {
+      "task_id": "task3_hard",
+      "avg_score": 0.7333,
+      "episode_scores": [
+        0.7,
+        0.9,
+        0.6
+      ]
+    }
+  },
+  "overall_avg": 0.7444
+}

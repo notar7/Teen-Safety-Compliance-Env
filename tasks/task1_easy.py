@@ -1,14 +1,4 @@
-"""
-TASK 1 — Easy: Obvious Content Restriction
-------------------------------------------
-Agent reviews content that is OBVIOUSLY inappropriate for teenage users (under 18)
-and must make a clear restriction/block decision.
-
-10 scenarios covering: alcohol, gambling, tobacco, adult dating, violent games,
-adult movies, online casino, firearms, adult entertainment, extreme sports.
-
-Grader: grade_task1(action, ground_truth) -> float [0.0, 1.0]
-"""
+"""Task 1 (easy): obvious content restrictions for under-18 users."""
 
 TASK1_SCENARIOS = [
 
@@ -310,7 +300,7 @@ def grade_task1(action: dict, ground_truth: dict) -> float:
     """
     score = 0.0
 
-    # ── Decision scoring ──────────────────────────────────────────────────
+    # Decision score.
     agent_decision = str(action.get("decision", "")).strip().lower()
     correct_decision = str(ground_truth.get("correct_decision", "")).strip().lower()
     acceptable_decisions = [d.lower() for d in ground_truth.get("acceptable_decisions", [])]
@@ -320,7 +310,7 @@ def grade_task1(action: dict, ground_truth: dict) -> float:
     elif agent_decision in acceptable_decisions:
         score += 0.40
 
-    # ── Confidence scoring ────────────────────────────────────────────────
+    # Confidence score.
     try:
         agent_confidence = float(action.get("confidence", 0.0))
     except (TypeError, ValueError):
@@ -330,7 +320,7 @@ def grade_task1(action: dict, ground_truth: dict) -> float:
     if agent_confidence >= minimum_confidence:
         score += 0.15
 
-    # ── Reason scoring ────────────────────────────────────────────────────
+    # Reason quality score.
     agent_reason = str(action.get("reason", "")).strip()
     if agent_reason and len(agent_reason) > 20:
         score += 0.15

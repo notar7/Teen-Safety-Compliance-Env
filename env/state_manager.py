@@ -1,9 +1,4 @@
-"""
-env/state_manager.py
---------------------
-Manages the current state of the TeenSafetyEnvironment episode.
-Stores scenario, task, step history, and provides a clean state dict.
-"""
+"""Simple state container for active environment episodes."""
 
 
 class StateManager:

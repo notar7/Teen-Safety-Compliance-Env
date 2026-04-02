@@ -1,14 +1,6 @@
-"""
-env/environment.py
-------------------
-TeenSafetyEnvironment — the main OpenEnv-compliant RL environment.
+"""Main OpenEnv environment used by the project.
 
-Implements the full OpenEnv interface:
-    reset(task_id)  → TeenSafetyObservation
-    step(action)    → (TeenSafetyObservation, TeenSafetyReward, done, info)
-    state()         → dict
-
-Ties together all 3 tasks, the state manager, and the reward calculator.
+It wires task scenarios, graders, state tracking, and reward computation.
 """
 
 import random
@@ -21,7 +13,7 @@ from tasks.task1_easy import TASK1_SCENARIOS, grade_task1
 from tasks.task2_medium import TASK2_SCENARIOS, grade_task2
 from tasks.task3_hard import TASK3_SCENARIOS, grade_task3
 
-# ── Try to extend OpenEnv BaseEnvironment; fall back gracefully if not installed ──
+# Use OpenEnv base class when available; fall back in local/test setups.
 try:
     from openenv import BaseEnvironment as _Base
 except ImportError:
@@ -29,8 +21,6 @@ except ImportError:
         """Minimal fallback base when openenv-core is not installed."""
         pass
 
-
-# ── Task registry ─────────────────────────────────────────────────────────────
 
 _TASK_REGISTRY = {
     "task1_easy":   (TASK1_SCENARIOS,   grade_task1),
@@ -92,10 +82,8 @@ class TeenSafetyEnvironment(_Base):
         self._episode_reward: float = 0.0
         self._previous_actions: list[str] = []
 
-        # Seeded RNG for reproducible scenario selection
+        # Seeded RNG for reproducible scenario selection.
         self._rng = random.Random(rng_seed)
-
-    # ── OpenEnv Interface ─────────────────────────────────────────────────
 
     def reset(self, task_id: str = "task1_easy") -> TeenSafetyObservation:
         """
@@ -117,17 +105,17 @@ class TeenSafetyEnvironment(_Base):
                 f"Valid options: {sorted(_VALID_TASK_IDS)}"
             )
 
-        # Reset episode tracking
+        # Reset episode state.
         self._current_task_id = task_id
         self._step_count = 0
         self._episode_reward = 0.0
         self._previous_actions = []
 
-        # Pick a random scenario from the correct task pool
+        # Pick one scenario for this episode.
         scenarios, _ = _TASK_REGISTRY[task_id]
         self._current_scenario = self._rng.choice(scenarios)
 
-        # Initialise state manager
+        # Initialize shared state snapshot.
         self._state_manager.set_state(self._current_scenario, task_id)
 
         return self._build_observation()
@@ -156,7 +144,6 @@ class TeenSafetyEnvironment(_Base):
 
         self._step_count += 1
 
-        # ── Grade the action ──────────────────────────────────────────────
         _, grader = _TASK_REGISTRY[self._current_task_id]
         ground_truth = self._current_scenario["ground_truth"]
 
@@ -170,11 +157,10 @@ class TeenSafetyEnvironment(_Base):
             task_id=self._current_task_id,
         )
 
-        # ── Update episode state ──────────────────────────────────────────
         self._episode_reward += reward.score
         self._previous_actions.append(str(action.decision))
 
-        # Episode terminates if max steps reached OR agent nailed it (score >= 0.8)
+        # Stop when max steps are reached or score is already strong.
         done = (self._step_count >= self.MAX_STEPS) or (reward.score >= 0.80)
 
         self._state_manager.update_state(
@@ -202,8 +188,6 @@ class TeenSafetyEnvironment(_Base):
             dict: Current episode state from StateManager
         """
         return self._state_manager.get_state()
-
-    # ── Private helpers ───────────────────────────────────────────────────
 
     def _build_observation(self) -> TeenSafetyObservation:
         """Construct a TeenSafetyObservation from current state."""

@@ -1,9 +1,4 @@
-"""
-env/reward.py
--------------
-RewardCalculator — wraps grader outputs into TeenSafetyReward objects
-and provides human-readable feedback for the agent.
-"""
+"""Reward calculation utilities for the Teen Safety environment."""
 
 from env.models import TeenSafetyReward
 
@@ -43,8 +38,6 @@ class RewardCalculator:
             breakdown=breakdown,
             feedback=feedback,
         )
-
-    # ── Private helpers ───────────────────────────────────────────────────
 
     def _build_breakdown(self, score: float, action: dict, ground_truth: dict) -> dict:
         """Return a detailed per-component score breakdown."""

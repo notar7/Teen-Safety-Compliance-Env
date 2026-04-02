@@ -1,10 +1,4 @@
-"""
-tasks/scenario_generator.py
-----------------------------
-Utility for generating and sampling scenarios across all 3 tasks.
-Used by the environment to pick scenarios during reset() and
-can be used to generate synthetic variants for data augmentation.
-"""
+"""Helpers for sampling and looking up task scenarios."""
 
 import random
 from typing import Literal
