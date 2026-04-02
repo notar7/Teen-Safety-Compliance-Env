@@ -1,3 +1,12 @@
+---
+title: Teen Safety Compliance Env
+emoji: 🛡️
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
 # Teen Safety Compliance Environment
 
 OpenEnv-compliant reinforcement learning environment that simulates teen safety compliance decisions for social media platforms.
