@@ -20,16 +20,19 @@ load_dotenv()
 # Runtime configuration.
 API_BASE_URL   = os.environ.get("API_BASE_URL",   "https://api.groq.com/openai/v1")
 MODEL_NAME     = os.environ.get("MODEL_NAME",     "llama-3.3-70b-versatile")
+HF_TOKEN       = os.environ.get("HF_TOKEN")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+LOCAL_IMAGE_NAME = os.environ.get("LOCAL_IMAGE_NAME")
 
-if not OPENAI_API_KEY:
-    print("ERROR: OPENAI_API_KEY environment variable is not set.")
-    print("Set it in your .env file or export it before running.")
+LLM_API_KEY = OPENAI_API_KEY or HF_TOKEN
+
+if not LLM_API_KEY:
+    print("ERROR: Missing API key. Set HF_TOKEN (recommended) or OPENAI_API_KEY.")
     sys.exit(1)
 
 # OpenAI-compatible client (works with Groq/OpenAI endpoints).
 client = OpenAI(
-    api_key=OPENAI_API_KEY,
+    api_key=LLM_API_KEY,
     base_url=API_BASE_URL,
 )
 
@@ -205,11 +208,9 @@ Respond with ONLY the JSON object, no other text."""
             return json.loads(json_match.group())
 
         # Last resort fallback.
-        print(f"    [WARN] Could not parse JSON from response: {response_text[:80]}...")
         return _fallback_action("unparseable response")
 
     except Exception as e:
-        print(f"    [ERROR] API call failed: {e}")
         return _fallback_action(f"API error: {str(e)}")
 
 
@@ -274,12 +275,10 @@ def run_task(
     """
     episode_scores = []
 
-    print(f"\n{'=' * 55}")
-    print(f"  Task: {task_id}  |  Episodes: {num_episodes}")
-    print(f"{'=' * 55}")
+    print(f"START task={task_id} episodes={num_episodes}")
 
     for ep in range(num_episodes):
-        print(f"\n  Episode {ep + 1}/{num_episodes}  [{task_id}]")
+        print(f"START task={task_id} episode={ep + 1}")
 
         observation = env.reset(task_id=task_id)
         obs_dict = observation.model_dump()
@@ -295,27 +294,25 @@ def run_task(
             action_dict = _optimize_action_for_task(obs_dict, action_dict)
             action = _safe_action(action_dict)
 
-            print(
-                f"    Step {step}: decision={action.decision:<22} "
-                f"confidence={action.confidence:.2f}"
-            )
-
             # Step the environment.
             observation, reward, done, info = env.step(action)
             obs_dict = observation.model_dump()
             episode_score = reward.score
 
-            short_feedback = reward.feedback[:70] + "..." if len(reward.feedback) > 70 else reward.feedback
-            print(f"           score={reward.score:.3f}  |  {short_feedback}")
+            print(
+                f"STEP task={task_id} episode={ep + 1} step={step} "
+                f"decision={action.decision} confidence={action.confidence:.2f} "
+                f"score={reward.score:.4f} done={done}"
+            )
 
             # Small delay to reduce request burst rate.
             time.sleep(0.3)
 
         episode_scores.append(episode_score)
-        print(f"  --> Episode {ep + 1} final score: {episode_score:.4f}")
+        print(f"END task={task_id} episode={ep + 1} final_score={episode_score:.4f}")
 
     avg = round(sum(episode_scores) / len(episode_scores), 4)
-    print(f"\n  Average score for {task_id}: {avg:.4f}")
+    print(f"END task={task_id} avg_score={avg:.4f}")
 
     return {
         "task_id":        task_id,
@@ -331,15 +328,7 @@ def main() -> dict:
     Returns:
         dict: Full results including per-task and overall average
     """
-    print("=" * 55)
-    print("  Teen Safety Compliance Environment")
-    print("  Baseline Inference — Team MindMesH")
-    print("  Scaler OpenEnv Hackathon 2026")
-    print("=" * 55)
-    print(f"  Model    : {MODEL_NAME}")
-    print(f"  API Base : {API_BASE_URL}")
-    print(f"  Seed     : 42 (reproducible)")
-    print("=" * 55)
+    print(f"START run model={MODEL_NAME} api_base={API_BASE_URL} seed=42")
 
     start_time = time.time()
 
@@ -357,17 +346,12 @@ def main() -> dict:
         4,
     )
 
-    # Print summary.
-    print(f"\n{'=' * 55}")
-    print("  BASELINE RESULTS SUMMARY")
-    print(f"{'=' * 55}")
-    print(f"  task1_easy   (easy)   : {task1_result['avg_score']:.4f}")
-    print(f"  task2_medium (medium) : {task2_result['avg_score']:.4f}")
-    print(f"  task3_hard   (hard)   : {task3_result['avg_score']:.4f}")
-    print(f"  {'─' * 35}")
-    print(f"  Overall average       : {overall:.4f}")
-    print(f"  Total runtime         : {elapsed}s  (limit: 1200s)")
-    print(f"{'=' * 55}")
+    print(
+        f"END run task1={task1_result['avg_score']:.4f} "
+        f"task2={task2_result['avg_score']:.4f} "
+        f"task3={task3_result['avg_score']:.4f} "
+        f"overall={overall:.4f} runtime_secs={elapsed:.1f}"
+    )
 
     # Save results.
     results = {
@@ -386,7 +370,7 @@ def main() -> dict:
     with open("baseline_results.json", "w") as f:
         json.dump(results, f, indent=2)
 
-    print("\n  Results saved to baseline_results.json")
+    print("END artifact=baseline_results.json")
     return results
 
 
