@@ -244,3 +244,15 @@ docker run --rm -p 7860:7860 --env-file .env teen-safety-compliance-env
 - Verify `/health`, `/reset`, `/step` after deploy
 
 ---
+
+## 🔮 Future scope
+
+- Add multilingual safety scenarios (Hindi, Hinglish, and regional languages) for broader moderation coverage.
+- Introduce adversarial prompt/content variants to stress-test policy robustness.
+- Expand task coverage with cross-platform escalation workflows and appeal-handling loops.
+- Add richer reward shaping using long-term safety outcomes (repeat-offense penalties, recovery signals).
+- Support multi-agent evaluation (moderation agent + auditor agent) for governance-style benchmarks.
+- Build a lightweight dashboard for per-task drift tracking, score trends, and failure analysis.
+- Add a policy-versioning layer so agents can be tested against evolving safety rules over time.
+
+---
