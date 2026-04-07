@@ -8,7 +8,6 @@ import os
 import json
 import random
 import re
-import sys
 import time
 
 from openai import OpenAI
@@ -26,10 +25,6 @@ LOCAL_IMAGE_NAME = os.environ.get("LOCAL_IMAGE_NAME")
 BENCHMARK      = os.environ.get("BENCHMARK", "teen-safety-compliance-env")
 
 LLM_API_KEY = OPENAI_API_KEY or HF_TOKEN
-
-if not LLM_API_KEY:
-    print("ERROR: Missing API key. Set HF_TOKEN (recommended) or OPENAI_API_KEY.", flush=True)
-    sys.exit(1)
 
 # OpenAI-compatible client (works with Groq/OpenAI endpoints).
 client = OpenAI(
