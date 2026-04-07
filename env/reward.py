@@ -28,7 +28,8 @@ class RewardCalculator:
         Returns:
             TeenSafetyReward: Structured reward with breakdown and feedback
         """
-        score = round(min(max(score, 0.0), 1.0), 4)
+        # Phase-2 validator requires scores to be strictly within (0, 1).
+        score = round(min(max(score, 0.01), 0.99), 4)
 
         breakdown = self._build_breakdown(score, action, ground_truth)
         feedback = self._build_feedback(score, action, ground_truth, task_id)

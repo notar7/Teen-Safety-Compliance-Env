@@ -75,7 +75,7 @@ def list_tasks():
                 "name": "Obvious Content Restriction",
                 "difficulty": "easy",
                 "description": "Detect and block obviously inappropriate content for teen users",
-                "expected_score_range": "0.70 - 1.00",
+                "expected_score_range": "0.70 - 0.99",
                 "num_scenarios": 10,
             },
             {

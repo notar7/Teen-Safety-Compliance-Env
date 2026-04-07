@@ -10,6 +10,6 @@ def test_reward_calculator_clamps_and_builds_feedback():
         task_id="task1_easy",
     )
 
-    assert reward.score == 1.0
+    assert reward.score == 0.99
     assert reward.breakdown["decision_match"] == "correct"
     assert isinstance(reward.feedback, str) and len(reward.feedback) > 0

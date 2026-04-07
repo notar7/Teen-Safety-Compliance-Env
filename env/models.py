@@ -54,6 +54,6 @@ class TeenSafetyReward(BaseModel):
     """
     Reward signal returned after each step.
     """
-    score: float = Field(..., ge=0.0, le=1.0, description="Reward score 0.0 to 1.0")
+    score: float = Field(..., gt=0.0, lt=1.0, description="Reward score strictly between 0.0 and 1.0")
     breakdown: dict = Field(..., description="Detailed scoring breakdown")
     feedback: str = Field(..., description="Human-readable feedback for the agent")
