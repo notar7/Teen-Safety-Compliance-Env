@@ -185,12 +185,12 @@ Latest baseline run produced:
 
 | Task | Avg Score |
 |---|---:|
-| `task1_easy` | `0.9900` |
-| `task2_medium` | `0.9900` |
-| `task3_hard` | `0.8633` |
-| **Overall** | **`0.9478`** |
+| `task1_easy` | `0.99` |
+| `task2_medium` | `0.99` |
+| `task3_hard` | `0.86` |
+| **Overall** | **`0.95`** |
 
-Runtime: ~`11.3s`.
+Runtime: ~`12.6s`.
 
 ---
 
