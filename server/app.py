@@ -31,6 +31,11 @@ app.add_middleware(
 # Single shared environment instance.
 env = TeenSafetyEnvironment(rng_seed=42)
 
+
+def _clamp_open_unit_interval(value: float) -> float:
+    """Clamp numeric values to strict open interval (0, 1)."""
+    return round(min(max(float(value), 0.01), 0.99), 4)
+
 class StepResponse(BaseModel):
     observation: dict
     reward: dict
@@ -140,11 +145,18 @@ def step(action: TeenSafetyAction):
     except RuntimeError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+    reward_payload = reward.model_dump()
+    reward_payload["score"] = _clamp_open_unit_interval(reward_payload.get("score", 0.5))
+
+    info_payload = dict(info)
+    if "episode_reward" in info_payload:
+        info_payload["episode_reward"] = _clamp_open_unit_interval(info_payload["episode_reward"])
+
     return StepResponse(
         observation=observation.model_dump(),
-        reward=reward.model_dump(),
+        reward=reward_payload,
         done=done,
-        info=info,
+        info=info_payload,
     )
 
 
@@ -156,7 +168,10 @@ def state():
     Returns:
         dict with task_id, case_id, step_number, previous_actions, episode_scores
     """
-    return env.state()
+    st = env.state()
+    if "episode_scores" in st and isinstance(st["episode_scores"], list):
+        st["episode_scores"] = [_clamp_open_unit_interval(s) for s in st["episode_scores"]]
+    return st
 
 
 def main() -> None:
