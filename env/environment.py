@@ -158,6 +158,8 @@ class TeenSafetyEnvironment(_Base):
         )
 
         self._episode_reward += reward.score
+        # Keep all exposed score-like values strictly within (0, 1) for validator compatibility.
+        self._episode_reward = min(max(self._episode_reward, 0.01), 0.99)
         self._previous_actions.append(str(action.decision))
 
         # Stop when max steps are reached or score is already strong.
