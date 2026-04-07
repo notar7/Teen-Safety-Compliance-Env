@@ -302,7 +302,7 @@ def run_task(
             print(
                 f"[STEP] task={task_id} episode={ep + 1} step={step} "
                 f"decision={action.decision} confidence={action.confidence:.2f} "
-                f"score={reward.score:.4f} done={done}",
+                f"reward={reward.score:.2f} done={done}",
                 flush=True,
             )
 
@@ -310,10 +310,13 @@ def run_task(
             time.sleep(0.3)
 
         episode_scores.append(episode_score)
-        print(f"[END] task={task_id} episode={ep + 1} final_score={episode_score:.4f}", flush=True)
+        print(
+            f"[END] task={task_id} episode={ep + 1} score={episode_score:.2f} steps={step}",
+            flush=True,
+        )
 
-    avg = round(sum(episode_scores) / len(episode_scores), 4)
-    print(f"[END] task={task_id} avg_score={avg:.4f}", flush=True)
+    avg = round(sum(episode_scores) / len(episode_scores), 2)
+    print(f"[END] task={task_id} score={avg:.2f} episodes={num_episodes}", flush=True)
 
     return {
         "task_id":        task_id,
@@ -344,14 +347,14 @@ def main() -> dict:
 
     overall = round(
         (task1_result["avg_score"] + task2_result["avg_score"] + task3_result["avg_score"]) / 3,
-        4,
+        2,
     )
 
     print(
-        f"[END] run task1={task1_result['avg_score']:.4f} "
-        f"task2={task2_result['avg_score']:.4f} "
-        f"task3={task3_result['avg_score']:.4f} "
-        f"overall={overall:.4f} runtime_secs={elapsed:.1f}",
+        f"[END] run task1={task1_result['avg_score']:.2f} "
+        f"task2={task2_result['avg_score']:.2f} "
+        f"task3={task3_result['avg_score']:.2f} "
+        f"overall={overall:.2f} runtime_secs={elapsed:.1f}",
         flush=True,
     )
 
