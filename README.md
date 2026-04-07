@@ -185,12 +185,12 @@ Latest baseline run produced:
 
 | Task | Avg Score |
 |---|---:|
-| `task1_easy` | `1.0000` |
-| `task2_medium` | `1.0000` |
-| `task3_hard` | `0.8667` |
-| **Overall** | **`0.9556`** |
+| `task1_easy` | `0.9900` |
+| `task2_medium` | `0.9900` |
+| `task3_hard` | `0.8633` |
+| **Overall** | **`0.9478`** |
 
-Runtime: ~`11.1s`.
+Runtime: ~`11.3s`.
 
 ---
 
@@ -247,7 +247,7 @@ docker run --rm -p 7860:7860 --env-file .env teen-safety-compliance-env
 
 ## 🔮 Future scope
 
-- Add multilingual safety scenarios (Hindi, Hinglish, and regional languages) for broader moderation coverage.
+- Can add multilingual safety scenarios (Hindi, Hinglish, and regional languages) for broader moderation coverage.
 - Introduce adversarial prompt/content variants to stress-test policy robustness.
 - Expand task coverage with cross-platform escalation workflows and appeal-handling loops.
 - Add richer reward shaping using long-term safety outcomes (repeat-offense penalties, recovery signals).
