@@ -354,7 +354,7 @@ def main() -> dict:
         f"[END] run task1={task1_result['avg_score']:.2f} "
         f"task2={task2_result['avg_score']:.2f} "
         f"task3={task3_result['avg_score']:.2f} "
-        f"overall={overall:.2f} runtime_secs={elapsed:.1f}",
+        f"overall={overall:.2f}",
         flush=True,
     )
 
