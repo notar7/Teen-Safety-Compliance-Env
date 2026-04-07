@@ -23,6 +23,7 @@ MODEL_NAME     = os.environ.get("MODEL_NAME",     "llama-3.3-70b-versatile")
 HF_TOKEN       = os.environ.get("HF_TOKEN")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 LOCAL_IMAGE_NAME = os.environ.get("LOCAL_IMAGE_NAME")
+BENCHMARK      = os.environ.get("BENCHMARK", "teen-safety-compliance-env")
 
 LLM_API_KEY = OPENAI_API_KEY or HF_TOKEN
 
@@ -257,6 +258,17 @@ def _safe_action(action_dict: dict) -> TeenSafetyAction:
     )
 
 
+def _bool_lower(value: bool) -> str:
+    return "true" if value else "false"
+
+
+def _clean_inline(value: str | None) -> str:
+    if value is None:
+        return "null"
+    text = str(value).replace("\n", " ").replace("\r", " ").strip()
+    return text if text else "null"
+
+
 def run_task(
     env: TeenSafetyEnvironment,
     task_id: str,
@@ -275,16 +287,15 @@ def run_task(
     """
     episode_scores = []
 
-    print(f"[START] task={task_id} episodes={num_episodes}", flush=True)
-
     for ep in range(num_episodes):
-        print(f"[START] task={task_id} episode={ep + 1}", flush=True)
+        print(f"[START] task={task_id} env={BENCHMARK} model={MODEL_NAME}", flush=True)
 
         observation = env.reset(task_id=task_id)
         obs_dict = observation.model_dump()
         episode_score = 0.0
         done = False
         step = 0
+        rewards: list[float] = []
 
         while not done and step < env.MAX_STEPS:
             step += 1
@@ -298,11 +309,14 @@ def run_task(
             observation, reward, done, info = env.step(action)
             obs_dict = observation.model_dump()
             episode_score = reward.score
+            rewards.append(reward.score)
+
+            error_msg = info.get("last_action_error") if isinstance(info, dict) else None
+            action_str = _clean_inline(action.decision)
 
             print(
-                f"[STEP] task={task_id} episode={ep + 1} step={step} "
-                f"decision={action.decision} confidence={action.confidence:.2f} "
-                f"reward={reward.score:.2f} done={done}",
+                f"[STEP] step={step} action={action_str} reward={reward.score:.2f} "
+                f"done={_bool_lower(done)} error={_clean_inline(error_msg)}",
                 flush=True,
             )
 
@@ -310,13 +324,15 @@ def run_task(
             time.sleep(0.3)
 
         episode_scores.append(episode_score)
+        rewards_str = ",".join(f"{r:.2f}" for r in rewards)
+        success = done and (episode_score > 0.0)
         print(
-            f"[END] task={task_id} episode={ep + 1} score={episode_score:.2f} steps={step}",
+            f"[END] success={_bool_lower(success)} steps={step} "
+            f"score={episode_score:.2f} rewards={rewards_str}",
             flush=True,
         )
 
     avg = round(sum(episode_scores) / len(episode_scores), 2)
-    print(f"[END] task={task_id} score={avg:.2f} episodes={num_episodes}", flush=True)
 
     return {
         "task_id":        task_id,
@@ -332,8 +348,6 @@ def main() -> dict:
     Returns:
         dict: Full results including per-task and overall average
     """
-    print(f"[START] run model={MODEL_NAME} api_base={API_BASE_URL} seed=42", flush=True)
-
     start_time = time.time()
 
     env = TeenSafetyEnvironment(rng_seed=42)
@@ -348,14 +362,6 @@ def main() -> dict:
     overall = round(
         (task1_result["avg_score"] + task2_result["avg_score"] + task3_result["avg_score"]) / 3,
         2,
-    )
-
-    print(
-        f"[END] run task1={task1_result['avg_score']:.2f} "
-        f"task2={task2_result['avg_score']:.2f} "
-        f"task3={task3_result['avg_score']:.2f} "
-        f"overall={overall:.2f}",
-        flush=True,
     )
 
     # Save results.
@@ -375,7 +381,6 @@ def main() -> dict:
     with open("baseline_results.json", "w") as f:
         json.dump(results, f, indent=2)
 
-    print("[END] artifact=baseline_results.json", flush=True)
     return results
 
 
