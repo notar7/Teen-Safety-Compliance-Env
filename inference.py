@@ -27,7 +27,7 @@ LOCAL_IMAGE_NAME = os.environ.get("LOCAL_IMAGE_NAME")
 LLM_API_KEY = OPENAI_API_KEY or HF_TOKEN
 
 if not LLM_API_KEY:
-    print("ERROR: Missing API key. Set HF_TOKEN (recommended) or OPENAI_API_KEY.")
+    print("ERROR: Missing API key. Set HF_TOKEN (recommended) or OPENAI_API_KEY.", flush=True)
     sys.exit(1)
 
 # OpenAI-compatible client (works with Groq/OpenAI endpoints).
@@ -275,10 +275,10 @@ def run_task(
     """
     episode_scores = []
 
-    print(f"START task={task_id} episodes={num_episodes}")
+    print(f"[START] task={task_id} episodes={num_episodes}", flush=True)
 
     for ep in range(num_episodes):
-        print(f"START task={task_id} episode={ep + 1}")
+        print(f"[START] task={task_id} episode={ep + 1}", flush=True)
 
         observation = env.reset(task_id=task_id)
         obs_dict = observation.model_dump()
@@ -300,19 +300,20 @@ def run_task(
             episode_score = reward.score
 
             print(
-                f"STEP task={task_id} episode={ep + 1} step={step} "
+                f"[STEP] task={task_id} episode={ep + 1} step={step} "
                 f"decision={action.decision} confidence={action.confidence:.2f} "
-                f"score={reward.score:.4f} done={done}"
+                f"score={reward.score:.4f} done={done}",
+                flush=True,
             )
 
             # Small delay to reduce request burst rate.
             time.sleep(0.3)
 
         episode_scores.append(episode_score)
-        print(f"END task={task_id} episode={ep + 1} final_score={episode_score:.4f}")
+        print(f"[END] task={task_id} episode={ep + 1} final_score={episode_score:.4f}", flush=True)
 
     avg = round(sum(episode_scores) / len(episode_scores), 4)
-    print(f"END task={task_id} avg_score={avg:.4f}")
+    print(f"[END] task={task_id} avg_score={avg:.4f}", flush=True)
 
     return {
         "task_id":        task_id,
@@ -328,7 +329,7 @@ def main() -> dict:
     Returns:
         dict: Full results including per-task and overall average
     """
-    print(f"START run model={MODEL_NAME} api_base={API_BASE_URL} seed=42")
+    print(f"[START] run model={MODEL_NAME} api_base={API_BASE_URL} seed=42", flush=True)
 
     start_time = time.time()
 
@@ -347,10 +348,11 @@ def main() -> dict:
     )
 
     print(
-        f"END run task1={task1_result['avg_score']:.4f} "
+        f"[END] run task1={task1_result['avg_score']:.4f} "
         f"task2={task2_result['avg_score']:.4f} "
         f"task3={task3_result['avg_score']:.4f} "
-        f"overall={overall:.4f} runtime_secs={elapsed:.1f}"
+        f"overall={overall:.4f} runtime_secs={elapsed:.1f}",
+        flush=True,
     )
 
     # Save results.
@@ -370,7 +372,7 @@ def main() -> dict:
     with open("baseline_results.json", "w") as f:
         json.dump(results, f, indent=2)
 
-    print("END artifact=baseline_results.json")
+    print("[END] artifact=baseline_results.json", flush=True)
     return results
 
 
