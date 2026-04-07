@@ -325,4 +325,5 @@ def grade_task1(action: dict, ground_truth: dict) -> float:
     if agent_reason and len(agent_reason) > 20:
         score += 0.15
 
-    return round(min(score, 1.0), 2)
+    # Phase-2 validator requires strict open interval (0, 1).
+    return round(min(max(score, 0.01), 0.99), 2)

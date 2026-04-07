@@ -375,4 +375,5 @@ def grade_task2(action: dict, ground_truth: dict) -> float:
     if 0.50 <= agent_confidence <= 0.85:
         score += 0.10
 
-    return round(min(score, 1.0), 2)
+    # Phase-2 validator requires strict open interval (0, 1).
+    return round(min(max(score, 0.01), 0.99), 2)
