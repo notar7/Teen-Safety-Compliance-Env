@@ -21,7 +21,7 @@ def test_tasks_endpoint():
     r = client.get("/tasks")
     assert r.status_code == 200
     tasks = r.json()["tasks"]
-    assert len(tasks) == 3
+    assert len(tasks) >= 10
 
 
 def test_reset_invalid_task():

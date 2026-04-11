@@ -9,9 +9,11 @@ pinned: false
 
 <!-- Hugging Face Spaces metadata above is required for Space configuration. -->
 
-# Teen Safety Compliance Environment
+<!-- markdownlint-disable-next-line MD025 -->
 
-OpenEnv-compliant reinforcement learning environment that simulates teen safety compliance decisions for social media platforms.
+## Teen Safety Compliance Environment
+
+OpenEnv-compliant reinforcement learning environment for teen-safety moderation decisions on social platforms.
 
 Built for Scaler OpenEnv Hackathon 2026 by Team MindMesH.
 
@@ -22,108 +24,171 @@ Built for Scaler OpenEnv Hackathon 2026 by Team MindMesH.
 
 ---
 
-## 🚀 Project Overview
+## What this environment is
 
-This environment evaluates an agent’s ability to:
-- Restrict clearly unsafe content for minors
-- Detect subtle psychological harm patterns
-- Identify age misrepresentation from behavioral signals
+This environment simulates a production-style teen safety compliance pipeline where an agent must decide whether to allow, restrict, block, escalate, or request age verification for risky content and account behaviors.
 
-The agent interacts with a standard OpenEnv loop:
+It is designed to evaluate:
+
+- obvious policy violations,
+- subtle psychological harm,
+- age fraud and misrepresentation,
+- adversarial/obfuscated harmful intent,
+- recommendation-surface safety and privacy risk.
+
+The environment is deterministic and benchmark-friendly: same inputs produce same grades.
+
+---
+
+## OpenEnv interaction model
+
+The agent uses the standard loop:
+
 - `reset(task_id)` → initial observation
 - `step(action)` → observation, reward, done, info
 - `state()` → current episode state
 
----
+Core objects:
 
-## 🌍 Why this project matters
+- `TeenSafetyObservation`
+- `TeenSafetyAction`
+- `TeenSafetyReward`
 
-Teen online safety is a high-impact, real-world compliance domain. This environment models policy-style moderation tradeoffs with deterministic grading and reproducible evaluation runs.
-
----
-
-## 🧩 Tasks and difficulty
-
-### Task 1: `task1_easy` (Easy)
-Obvious policy violations for under-18 users.
-Examples: alcohol ads, gambling promos, firearms sales, adult content promotions.
-
-Expected good-agent range: `0.70 – 1.00`.
-
-### Task 2: `task2_medium` (Medium)
-Subtle harm assessment for teens.
-Examples: dangerous dieting, predatory parasocial content, scam patterns, cyberbullying-adjacent posts.
-
-Expected good-agent range: `0.40 – 0.80`.
-
-### Task 3: `task3_hard` (Hard)
-Age-misrepresentation detection using behavioral evidence only.
-Examples: school-timing activity patterns, teen-interest clusters, suspicious group memberships.
-
-Expected good-agent range: `0.20 – 0.60`.
+Reward scores are strictly clamped to the open interval `(0, 1)` for validator compatibility.
 
 ---
 
-## 🧠 Observation, action, reward
+## Round 2 implemented improvements
 
-### Observation (`TeenSafetyObservation`)
-- `case_id`: unique case id
-- `case_type`: `content_review` | `harm_assessment` | `age_verification`
-- `content`: case payload
-- `user_profile`: user metadata
-- `platform_context`: platform context
-- `previous_actions`: action history in episode
-- `step_number`: current step
-- `task_id`: active task
-- `instructions`: task-specific instruction text
+All major engineering improvements from the internal plan are implemented:
 
-### Action (`TeenSafetyAction`)
-- `decision`: `allow` | `restrict` | `block` | `escalate` | `request_verification`
-- `confidence`: float in `[0.0, 1.0]`
-- `reason`: natural language rationale
-- `additional_action`: optional action (`add_warning_label` | `notify_parent` | `age_gate`)
-
-### Reward (`TeenSafetyReward`)
-- `score`: float in `[0.0, 1.0]`
-- `breakdown`: structured details
-- `feedback`: grader feedback text
+1. Expanded benchmark from 3 tasks to 10 tasks.
+2. Dynamic task registry and API task catalog (no hardcoded 3-task paths).
+3. Risk-tiered decision logic in inference calibration.
+4. Uncertainty-aware handling for ambiguous/conflicting cases.
+5. Recommendation gating behavior integrated in policy logic.
+6. Adversarial/coded-harm cue handling (e.g., obfuscated terms).
+7. Counterfactual note support in decision reasoning.
+8. Internal policy trace (`signals -> rule -> action`) in step info/state.
+9. Strict validator-safe stdout format retained (`[START]`, `[STEP]`, `[END]`).
+10. Optional summary line retained but sanitized to print only `overall_avg`.
 
 ---
 
-## 🛠️ Tech stack
+## Task matrix (10 tasks)
+
+### Easy
+
+- `task1_easy`: obvious content restriction for minors
+- `task4_easy`: self-harm/violent challenge suppression
+- `task5_easy`: grooming/exploitation/adult solicitation blocking
+
+### Medium
+
+- `task2_medium`: subtle psychological harm assessment
+- `task6_medium`: recommendation risk gating
+- `task7_medium`: conflicting metadata resolution
+- `task8_medium`: teen privacy/location exposure control
+
+### Hard
+
+- `task3_hard`: age misrepresentation detection from behavior
+- `task9_hard`: adversarial mixed-signal moderation
+- `task10_hard`: obfuscated harmful intent detection
+
+---
+
+## Evaluation summary (integrated evaluation packet)
+
+### Current benchmark snapshot
+
+Latest local deterministic run (`baseline_results.json`) shows:
+
+| Scope | ID / Group | Avg Score |
+| --- | --- | ---: |
+| Overall | all tasks | `0.98` |
+| Difficulty average | easy | `0.99` |
+| Difficulty average | medium | `0.99` |
+| Difficulty average | hard | `0.97` |
+| Task | `task1_easy` | `0.99` |
+| Task | `task2_medium` | `0.99` |
+| Task | `task3_hard` | `0.93` |
+| Task | `task4_easy` | `0.99` |
+| Task | `task5_easy` | `0.99` |
+| Task | `task6_medium` | `0.99` |
+| Task | `task7_medium` | `0.99` |
+| Task | `task8_medium` | `0.99` |
+| Task | `task9_hard` | `0.99` |
+| Task | `task10_hard` | `0.99` |
+
+### Failure modes addressed
+
+- Obfuscated harmful terms bypassing simple keyword filters.
+- “Educational” framing with hidden risky promotion signals.
+- Teen privacy/location data extraction patterns.
+- Mixed-signal content that requires calibrated escalation vs restriction.
+- Age-fraud patterns without direct identity proof.
+
+---
+
+## Fairness and bias guardrails (integrated fairness audit)
+
+The decision logic is designed to use policy-relevant risk signals only.
+
+### Signals used
+
+- content risk cues (harmful themes, metadata contradictions, obfuscation),
+- teen-safety context (age-related safety constraints),
+- behavior patterns directly tied to policy objectives.
+
+### Signals not used for punitive decisions
+
+- irrelevant personal traits not tied to safety policy,
+- demographic attributes as standalone risk predictors.
+
+### Guardrails in practice
+
+- deterministic grading and transparent rule criteria,
+- internal policy trace for auditability,
+- cross-step consistency controls to reduce contradictory actions,
+- explicit escalation pathways for uncertainty.
+
+---
+
+## Technical stack
 
 - Python 3.11
 - openenv-core
 - FastAPI + Uvicorn
 - Pydantic v2
-- OpenAI Python client (used with OpenAI-compatible endpoints, e.g., Groq)
+- OpenAI Python client (OpenAI-compatible endpoints)
 - pytest
 - Docker
 
 ---
 
-## 🗂️ Project structure
+## Environment structure
 
 - `env/` — environment core, models, reward, state manager
-- `tasks/` — scenario sets + deterministic graders
-- `server/` — FastAPI API server
-- `inference.py` — baseline inference/evaluation script
+- `tasks/` — all scenario sets + deterministic graders
+- `server/` — FastAPI API service
+- `inference.py` — benchmark inference runner and policy calibration
 - `openenv.yaml` — OpenEnv metadata
-- `Dockerfile` — containerization
-- `tests/` — test suite
+- `Dockerfile` — container runtime
+- `tests/` — regression and contract tests
 
 ---
 
-## ⚙️ Setup
+## Setup
 
-1. Create/activate virtual environment
-2. Install dependencies:
+1. Create and activate a virtual environment.
+2. Install dependencies.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Configure environment variables (example):
+1. Configure environment variables.
 
 ```env
 API_BASE_URL=https://api.groq.com/openai/v1
@@ -132,127 +197,97 @@ OPENAI_API_KEY=your_api_key
 HF_TOKEN=your_huggingface_token
 ```
 
-### Environment variables details
+Environment variable reference:
 
 | Variable | Required | Used in | Example | Purpose |
 | --- | --- | --- | --- | --- |
 | `API_BASE_URL` | Yes | `inference.py` | `https://api.groq.com/openai/v1` | OpenAI-compatible endpoint base URL |
-| `MODEL_NAME` | Yes | `inference.py` | `llama-3.3-70b-versatile` | Model ID used for agent decisions |
-| `OPENAI_API_KEY` | Yes | `inference.py` | `gsk_xxx` or `sk-xxx` | Auth token for model API access |
-| `HF_TOKEN` | Recommended for deploy | HF deployment workflow | `hf_xxx` | Hugging Face authentication for pushing/deploying Space |
+| `MODEL_NAME` | Yes | `inference.py` | `llama-3.3-70b-versatile` | Model ID for decision calls |
+| `OPENAI_API_KEY` | Yes | `inference.py` | `gsk_xxx` or `sk-xxx` | API authentication |
+| `HF_TOKEN` | Optional (deploy) | HF workflow | `hf_xxx` | Hugging Face auth |
+| `PRINT_OVERALL_SUMMARY` | Optional | `inference.py` | `1` | Print `[SUMMARY] overall_avg=...` line |
 
-Notes:
+Security notes:
 
-- Keep secrets only in local `.env` or HF Space Secrets.
-- Never commit real API keys to Git.
-- If a key is exposed, rotate it immediately and replace it everywhere.
+- Keep secrets in local `.env` or Hugging Face Space secrets.
+- Never commit live API keys.
+- Rotate keys immediately if exposed.
 
 ---
 
-## 💻 Run locally
+## Run locally
 
-### Start server
+Start API server:
 
 ```bash
 python -m server.app
 ```
 
-Server runs at `http://0.0.0.0:7860`.
+Server: `http://0.0.0.0:7860`
 
-### API endpoints
+API endpoints:
+
 - `GET /` — metadata
 - `GET /health` — health status
-- `GET /tasks` — task metadata
+- `GET /tasks` — dynamic task catalog
 - `POST /reset?task_id=...` — reset episode
 - `POST /step` — submit action
 - `GET /state` — current state snapshot
 
 ---
 
-## 📈 Run baseline inference
+## Run benchmark inference
 
 ```bash
 python inference.py
 ```
 
-This runs all 3 tasks (3 episodes each), prints scores, and writes `baseline_results.json`.
+This runs all registered tasks (currently 10), prints validator-safe progress logs, and writes `baseline_results.json`.
 
 ---
 
-## 🏁 Baseline results (latest run)
+## Test status
 
-Latest baseline run produced:
-
-| Task | Avg Score |
-|---|---:|
-| `task1_easy` | `0.99` |
-| `task2_medium` | `0.99` |
-| `task3_hard` | `0.86` |
-| **Overall** | **`0.95`** |
-
-Runtime: ~`12.6s`.
-
----
-
-## ✅ Tests
-
-Run full test suite:
+Run tests:
 
 ```bash
 pytest -q
 ```
 
-Current status: `100 passed`.
+Current status: `106 passed`.
 
 ---
 
-## 🔍 OpenEnv validation
+## Docker
 
-Validate project readiness:
-
-```bash
-openenv validate
-```
-
-Current status: passes (`Ready for multi-mode deployment`).
-
----
-
-## 🐳 Docker
-
-Build image:
+Build:
 
 ```bash
 docker build -t teen-safety-compliance-env .
 ```
 
-Run container:
+Run:
 
 ```bash
 docker run --rm -p 7860:7860 --env-file .env teen-safety-compliance-env
 ```
 
-> `.dockerignore` excludes local artifacts, tests, and secret files from build context.
+---
+
+## Hugging Face Spaces deployment notes
+
+- Use Docker Space.
+- Expose port `7860`.
+- Configure required secrets/env vars in Space settings.
+- Smoke test: `/health`, `/reset`, `/step`, `/state`.
 
 ---
 
-## ☁️ Deployment notes (Hugging Face Spaces)
+## Roadmap (next iterations)
 
-- Use Docker Space
-- Expose port `7860`
-- Ensure env vars are configured in Space secrets
-- Verify `/health`, `/reset`, `/step` after deploy
-
----
-
-## 🔮 Future scope
-
-- Can add multilingual safety scenarios (Hindi, Hinglish, and regional languages) for broader moderation coverage.
-- Introduce adversarial prompt/content variants to stress-test policy robustness.
-- Expand task coverage with cross-platform escalation workflows and appeal-handling loops.
-- Add richer reward shaping using long-term safety outcomes (repeat-offense penalties, recovery signals).
-- Support multi-agent evaluation (moderation agent + auditor agent) for governance-style benchmarks.
-- Build a lightweight dashboard for per-task drift tracking, score trends, and failure analysis.
-- Add a policy-versioning layer so agents can be tested against evolving safety rules over time.
+- Add multilingual scenarios and region-specific safety patterns.
+- Add richer long-horizon reward shaping for repeat-offense behavior.
+- Add policy-version benchmarking and drift analysis dashboard.
+- Add multi-agent audit workflows for governance evaluation.
 
 ---

@@ -30,7 +30,7 @@ def test_tasks_contract_shape_and_values():
     r = client.get("/tasks")
     assert r.status_code == 200
     tasks = r.json()["tasks"]
-    assert len(tasks) == 3
+    assert len(tasks) >= 10
 
     for t in tasks:
         required = {"id", "name", "difficulty", "description", "expected_score_range", "num_scenarios"}
@@ -46,7 +46,7 @@ def test_reset_default_task_is_task1_easy():
     assert obs["task_id"] == "task1_easy"
 
 
-@pytest.mark.parametrize("bad_task", ["bad", "task4", ""]) 
+@pytest.mark.parametrize("bad_task", ["bad", "task404", ""]) 
 def test_reset_invalid_task_ids_return_400(bad_task):
     r = client.post("/reset", params={"task_id": bad_task})
     assert r.status_code == 400

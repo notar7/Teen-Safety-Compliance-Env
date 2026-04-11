@@ -78,8 +78,14 @@ def test_main_writes_results_file_and_returns_payload(monkeypatch, tmp_path):
 
     def fake_run_task(_env, task_id, num_episodes=3):  # noqa: ANN001
         calls.append((task_id, num_episodes))
-        base = {"task1_easy": 0.9, "task2_medium": 0.7, "task3_hard": 0.5}[task_id]
-        return {"task_id": task_id, "avg_score": base, "episode_scores": [base, base, base]}
+        base = {
+            "easy": 0.9,
+            "medium": 0.7,
+            "hard": 0.5,
+        }
+        tier = task_id.split("_")[-1]
+        score = base[tier]
+        return {"task_id": task_id, "avg_score": score, "episode_scores": [score, score, score]}
 
     monkeypatch.setattr(inf, "run_task", fake_run_task)
 
@@ -89,11 +95,8 @@ def test_main_writes_results_file_and_returns_payload(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     result = inf.main()
 
-    assert calls == [
-        ("task1_easy", 3),
-        ("task2_medium", 3),
-        ("task3_hard", 3),
-    ]
+    assert len(calls) >= 10
+    assert all(num_episodes == 3 for _, num_episodes in calls)
     assert result["overall_avg"] == 0.7
     assert result["runtime_secs"] == 10.0
 
@@ -122,5 +125,6 @@ def test_main_result_shape(monkeypatch, tmp_path):
     out = inf.main()
     assert "model" in out
     assert "api_base" in out
-    assert "tasks" in out and set(out["tasks"].keys()) == {"task1_easy", "task2_medium", "task3_hard"}
+    assert "tasks" in out and len(out["tasks"]) >= 10
+    assert {"task1_easy", "task2_medium", "task3_hard"}.issubset(set(out["tasks"].keys()))
     assert isinstance(out["overall_avg"], float)

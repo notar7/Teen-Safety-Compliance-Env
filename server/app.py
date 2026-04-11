@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 
-from env.environment import TeenSafetyEnvironment
+from env.environment import TeenSafetyEnvironment, get_task_catalog, get_task_ids
 from env.models import TeenSafetyAction, TeenSafetyObservation, TeenSafetyReward
 
 app = FastAPI(
@@ -73,41 +73,14 @@ def health():
 @app.get("/tasks", tags=["info"])
 def list_tasks():
     """List all available tasks with metadata."""
-    return {
-        "tasks": [
-            {
-                "id": "task1_easy",
-                "name": "Obvious Content Restriction",
-                "difficulty": "easy",
-                "description": "Detect and block obviously inappropriate content for teen users",
-                "expected_score_range": "0.70 - 0.99",
-                "num_scenarios": 10,
-            },
-            {
-                "id": "task2_medium",
-                "name": "Subtle Harm Assessment",
-                "difficulty": "medium",
-                "description": "Assess subtle psychological harm in content targeting teenagers",
-                "expected_score_range": "0.40 - 0.80",
-                "num_scenarios": 8,
-            },
-            {
-                "id": "task3_hard",
-                "name": "Age Misrepresentation Detection",
-                "difficulty": "hard",
-                "description": "Detect age fraud from behavioral signals alone",
-                "expected_score_range": "0.20 - 0.60",
-                "num_scenarios": 6,
-            },
-        ]
-    }
+    return {"tasks": get_task_catalog()}
 
 
 @app.post("/reset", response_model=dict, tags=["environment"])
 def reset(
     task_id: str = Query(
         default="task1_easy",
-        description="Task to run: task1_easy | task2_medium | task3_hard",
+        description="Task to run (see /tasks)",
     )
 ):
     """
@@ -119,7 +92,7 @@ def reset(
     Returns:
         TeenSafetyObservation as dict
     """
-    valid_tasks = {"task1_easy", "task2_medium", "task3_hard"}
+    valid_tasks = set(get_task_ids())
     if task_id not in valid_tasks:
         raise HTTPException(
             status_code=400,

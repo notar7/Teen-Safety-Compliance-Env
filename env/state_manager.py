@@ -27,10 +27,17 @@ class StateManager:
             "step_number": 0,
             "previous_actions": [],
             "episode_scores": [],
+            "policy_traces": [],
             "episode_done": False,
         }
 
-    def update_state(self, action_decision: str, step_score: float, done: bool) -> None:
+    def update_state(
+        self,
+        action_decision: str,
+        step_score: float,
+        done: bool,
+        policy_trace: dict | None = None,
+    ) -> None:
         """
         Update state after each step.
 
@@ -42,6 +49,8 @@ class StateManager:
         self._state["step_number"] += 1
         self._state["previous_actions"].append(action_decision)
         self._state["episode_scores"].append(round(step_score, 4))
+        if isinstance(policy_trace, dict):
+            self._state["policy_traces"].append(policy_trace)
         self._state["episode_done"] = done
 
     def get_state(self) -> dict:
