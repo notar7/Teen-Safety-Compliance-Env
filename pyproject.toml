@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "teen-safety-compliance-env"
-version = "1.0.0"
+version = "1.0.1"
 description = "OpenEnv environment for teen safety compliance tasks"
 readme = "teen_safety_PRD.md"
 requires-python = ">=3.11"

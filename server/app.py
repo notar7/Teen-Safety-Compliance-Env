@@ -15,7 +15,7 @@ app = FastAPI(
         "An AI agent reviews content, accounts, and features to protect teenage users "
         "from harmful content, psychological harm, and age fraud on social media platforms."
     ),
-    version="1.0.0",
+    version="1.0.1",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -57,7 +57,7 @@ def root():
     return {
         "name": "teen-safety-compliance-env",
         "status": "running",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "team": "MindMesH",
         "hackathon": "Scaler OpenEnv Hackathon 2026",
         "docs": "/docs",

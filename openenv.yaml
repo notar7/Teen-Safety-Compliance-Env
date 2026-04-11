@@ -1,5 +1,5 @@
 name: teen-safety-compliance-env
-version: "1.0.0"
+version: "1.0.1"
 description: >
   An RL environment simulating Meta's Teen Safety Compliance system.
   An AI agent reviews content, accounts, and features to protect teenage
